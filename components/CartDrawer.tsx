@@ -38,11 +38,43 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       return;
     }
 
-    const itemsList = items.map(item => `- ${item.name} (x${item.quantity})`).join('%0a');
-    const message = `Bonjour Boutique MV,%0a%0aJe souhaite commander :%0a${itemsList}%0a%0aTotal: ${subtotal} ${currency}%0a%0aMes infos:%0aNom: ${userInfo.name}%0aTel: ${userInfo.phone}%0aLieu: ${userInfo.location}`;
+    const date = new Date().toLocaleDateString('fr-FR');
+    const totalFormatted = subtotal.toLocaleString('fr-FR');
+
+    // Format items list with calculation per line
+    const itemsList = items.map(item => {
+      const itemTotal = (item.price * item.quantity).toLocaleString('fr-FR');
+      return `👉 *${item.quantity}x* ${item.name.toUpperCase()}\n     └ ${itemTotal} ${item.currency}`;
+    }).join('\n');
+
+    // Construct the formatted message
+    const messageRaw = `👋 *Bonjour BMV Boutique !*
+🛒 *Je souhaite passer commande*
+──────────────────────
+
+👤 *Client :* ${userInfo.name}
+📞 *Téléphone :* ${userInfo.phone}
+📍 *Lieu :* ${userInfo.location}
+📅 *Date :* ${date}
+
+📦 *MA SÉLECTION :*
+${itemsList}
+
+──────────────────────
+💰 *TOTAL : ${totalFormatted} ${currency}*
+──────────────────────
+
+🚚 *NOTE LIVRAISON :*
+👉 Zone : ${userInfo.location}
+👉 Frais (1500-3000 FCFA) à confirmer.
+
+👋 *Merci de confirmer ma commande !*`;
+
+    // Encode for URL to ensure special characters and emojis work
+    const encodedMessage = encodeURIComponent(messageRaw);
     
-    // Updated number to +33 744943191
-    window.open(`https://wa.me/33744943191?text=${message}`, '_blank');
+    // Send to +33 744943191
+    window.open(`https://wa.me/33744943191?text=${encodedMessage}`, '_blank');
   };
 
   return (
